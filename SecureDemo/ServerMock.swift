@@ -14,11 +14,12 @@ struct User {
 
 enum ServerError: Error {
     case expiredRandom
+    case badRequest
 }
 
 class ServerMock {
 
-    let dependencies: Dependencies
+    private let dependencies: Dependencies
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
@@ -49,21 +50,11 @@ class ServerMock {
         }
     }
     
-    func fetchUser() async throws -> User? {
+    func fetchMockedUser() async throws -> User? {
         try await Task.sleep(nanoseconds: 2_000_000_000)
         return self.user
     }
-    
-    func postRequest(random: Int) async throws {
-        guard !expiredRandoms.contains(random) else {
-            throw ServerError.expiredRandom
-        }
-        
-        // TODO: execute request if random is different
-        
-        updateRandom()
-    }
-    
+
     func postRequest(body: [String: String]) async throws -> Data? {
         guard let randomStr = body["random"], let random = Int(randomStr), !expiredRandoms.contains(random) else {
             throw ServerError.expiredRandom
@@ -71,7 +62,10 @@ class ServerMock {
 
         updateRandom()
         
-        return ["status": "200", "data": "Some server data"].toJSON()
+        guard let path = body["path"] else {
+            throw ServerError.badRequest
+        }
+        return ["data": "Some server data for request \(path)"].toJSON()
     }
     
     func observeUser(completion: @escaping (User?) -> Void) {

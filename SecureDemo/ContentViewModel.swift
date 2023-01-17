@@ -24,27 +24,19 @@ class ContentViewModel: ObservableObject {
     
     func buttonOnePressed() {
         Task {
-            do {
-                try await dependencies.session.postRequestOne()
-            } catch {
-                debugPrint(error)
-            }
+            await dependencies.session.postRequestOne()
         }
     }
     
     func buttonTwoPressed() {
         Task {
-            do {
-                try await dependencies.session.postRequestTwo()
-            } catch {
-                debugPrint(error)
-            }
+            await dependencies.session.postRequestTwo()
         }
     }
     
     func buttonThreePressed() {
         Task {
-            print(#function)
+            await dependencies.session.postRequestThree()
         }
     }
 }

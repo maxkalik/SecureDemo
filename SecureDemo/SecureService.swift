@@ -22,7 +22,6 @@ enum SecureError: Error {
     case error(String)
 }
 
-
 typealias SecureCompletion = (SecureError?, SecureResponse?) -> Void
 
 class SecureService {
@@ -30,52 +29,50 @@ class SecureService {
     private let dependencies: Dependencies
     
     private var currentRandom: Int?
-    private var requests: [any SecureRequest] = [] {
+
+    private var requestCompletions: [(request: any SecureRequest, completion: SecureCompletion?)] = []  {
         didSet {
-            print("+++", requests.map { $0.path })
+            print("+++", requestCompletions.map { $0.request.path })
         }
     }
-    
-    var requestCompletion: SecureCompletion?
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
     }
 
     func call<R: SecureRequest>(request: R, completion: @escaping (SecureError?, SecureResponse?) -> Void) {
-        requests.append(request)
-        requestCompletion = completion
+        requestCompletions.append((request, completion))
         executeFromQueue()
     }
     
     func executeFromQueue() {
         Task {
-            guard let request = requests.first else {
+            guard let requestCompletion = requestCompletions.first else {
                 return
             }
-            
-//            let userRandom1 = await dependencies.session.user?.random
-//            print("=== Start executing from queue | USER RANDOM: \(userRandom1) | CUR RANDOM: \(currentRandom)")
+
+            // let userRandom1 = await dependencies.session.user?.random
+            // print("=== Start executing from queue | USER RANDOM: \(userRandom1) | CUR RANDOM: \(currentRandom)")
             
             // CASE 1 - USER RANDOM: nil | CURRENT RANDOM: nil
             // CASE 2 - USER RANDOM: 123 | CURRENT RANDOM: nil
             // CASE 3 - USER RANDOM: 123 | CURRENT RANDOM: 123
             // CASE 4 - USER RANDOM: 321 | CURRENT RANDOM: 123
+            // CASE 4 - USER RANDOM: nil | CURRENT RANDOM: 321 -> ?
             
             guard let userRandom = await dependencies.session.user?.random, currentRandom != userRandom else {
-                requestCompletion?(nil, nil)
                 return
             }
             
             currentRandom = userRandom
-            
-            requests.removeAll { $0.path == request.path }
+
+            requestCompletions.removeAll { $0.request.path == requestCompletion.request.path }
             
             do {
-                let response = try await execute(request: request, random: userRandom)
-                requestCompletion?(nil, response)
+                let response = try await execute(request: requestCompletion.request, random: userRandom)
+                requestCompletion.completion?(nil, response)
             } catch {
-                requestCompletion?(.error("SECURE ERROR: Server error"), nil)
+                requestCompletion.completion?(.error("SECURE ERROR: Server error"), nil)
             }
         }
     }
@@ -91,24 +88,5 @@ class SecureService {
         }
         
         return try JSONDecoder().decode(R.Output.self, from: data)
-    }
-}
-
-struct DummySecureResponse: SecureResponse {
-    var data: String
-    
-    init(path: String) {
-        self.data = "Dummy Response - \(path)"
-    }
-}
-
-extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
-    func toJSON() -> Data? {
-        do {
-            let dict = self.mapValues { ($0 as? Double)?.isNaN == true ? nil : $0 }
-            return try JSONSerialization.data(withJSONObject: dict)
-        } catch {
-            return nil
-        }
     }
 }
