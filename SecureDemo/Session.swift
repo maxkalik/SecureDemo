@@ -49,46 +49,53 @@ actor Session {
         }
     }
     
-    func postRequestOne() {
+    func postRequestOne(completion: @escaping () -> Void) {
         
         // MARK: - Request 1 / 1
         
-        let request1 = Request1of1()
+        let request1 = Request1x1()
         dependencies.secure.call(request: request1) { error, response in
             self.debugResponse(request: request1, error: error, response: response)
             
             // MARK: - Request 1 / 2
             
-            let request2 = Request2of1()
+            let request2 = Request1x2()
             self.dependencies.secure.call(request: request2) { error, response in
                 self.debugResponse(request: request2, error: error, response: response)
                 
                 // MARK: - Request 1 / 3
                 
-                let request3 = Request3of1()
+                let request3 = Request1x3()
                 self.dependencies.secure.call(request: request3) { error, response in
                     self.debugResponse(request: request3, error: error, response: response)
+                    
+                    completion()
                 }
             }
         }
     }
     
-    func postRequestTwo() {
-        let request = Request1of2()
+    func postRequestTwo(completion: @escaping (Response2x2) -> Void) {
+        let request = Request2x1()
         self.dependencies.secure.call(request: request) { error, response in
             self.debugResponse(request: request, error: error, response: response)
             
-            let request = Request2of2()
+            let request = Request2x2()
             self.dependencies.secure.call(request: request) { error, response in
                 self.debugResponse(request: request, error: error, response: response)
+                if let response = response as? Response2x2 {
+                    completion(response)
+                }
             }
         }
     }
     
-    func postRequestThree() {
-        let request = Request1of3()
+    func postRequestThree(completion: @escaping () -> Void) {
+        let request = Request3x1()
         self.dependencies.secure.call(request: request) { error, response in
             self.debugResponse(request: request, error: error, response: response)
+            
+            completion()
         }
     }
     
@@ -102,75 +109,4 @@ actor Session {
             print("=== request: \(request.path) - 🟢", response)
         }
     }
-}
-
-// MARK: - secure/1/1
-
-struct Request1of1: SecureRequest {
-    typealias Output = Response1of1
-    var path: String = "secure/1/1"
-}
-
-struct Response1of1: SecureResponse {
-    var data: String
-}
-
-// MARK: - secure/1/2
-
-struct Request2of1: SecureRequest {
-    typealias Output = Response2of1
-    var path: String = "secure/1/2"
-}
-
-struct Response2of1: SecureResponse {
-    var data: String
-}
-
-// MARK: - secure/1/3
-
-struct Request3of1: SecureRequest {
-    typealias Output = Response3of1
-    var path: String = "secure/1/3"
-}
-
-struct Response3of1: SecureResponse {
-    var data: String
-}
-
-
-
-// MARK: - secure/2/1
-
-struct Request1of2: SecureRequest {
-    typealias Output = Response1of2
-    var path: String = "secure/2/1"
-}
-
-struct Response1of2: SecureResponse {
-    var data: String
-}
-
-// MARK: - secure/2/2
-
-struct Request2of2: SecureRequest {
-    typealias Output = Response2of2
-    var path: String = "secure/2/2"
-}
-
-struct Response2of2: SecureResponse {
-    var data: String
-}
-
-
-
-
-// MARK: - secure/3/1
-
-struct Request1of3: SecureRequest {
-    typealias Output = Response1of3
-    var path: String = "secure/3/1"
-}
-
-struct Response1of3: SecureResponse {
-    var data: String
 }

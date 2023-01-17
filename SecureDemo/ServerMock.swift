@@ -46,7 +46,6 @@ class ServerMock {
             try await Task.sleep(nanoseconds: randomSec)
             let random = Int.random(in: 1000000...9000000)
             user.random = random
-            print("=== SERVER ==> user random updated", user)
         }
     }
     

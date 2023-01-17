@@ -22,26 +22,41 @@ struct ContentView: View {
                 Spacer()
                     .frame(height: 200)
                 
-                Button {
-                    viewModel.buttonOnePressed()
-                } label: {
-                    Text("Start Request 1")
+                if viewModel.isLoadingButton1 {
+                    ProgressView()
+                        .frame(height: 50)
+                } else {
+                    Button {
+                        viewModel.buttonOnePressed()
+                    } label: {
+                        Text("Start Request 1")
+                    }
+                    .frame(height: 50)
                 }
-                .frame(height: 50)
                 
-                Button {
-                    viewModel.buttonTwoPressed()
-                } label: {
-                    Text("Start Request 2")
+                if viewModel.isLoadingButton2 {
+                    ProgressView()
+                        .frame(height: 50)
+                } else {
+                    Button {
+                        viewModel.buttonTwoPressed()
+                    } label: {
+                        Text("Start Request 2")
+                    }
+                    .frame(height: 50)
                 }
-                .frame(height: 50)
                 
-                Button {
-                    viewModel.buttonThreePressed()
-                } label: {
-                    Text("Start Request 3")
+                if viewModel.isLoadingButton3 {
+                    ProgressView()
+                        .frame(height: 50)
+                } else {
+                    Button {
+                        viewModel.buttonThreePressed()
+                    } label: {
+                        Text("Start Request 3")
+                    }
+                    .frame(height: 50)
                 }
-                .frame(height: 50)
             }
             .padding()
         }
