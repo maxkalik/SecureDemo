@@ -20,6 +20,7 @@ actor Session {
             if let newRandom = user?.random, old?.random != newRandom {
                 let oldRandomNum = (old?.random ?? -1)
                 let oldRandom = oldRandomNum < 1 ? "nil" : "\(oldRandomNum)"
+                print("--------------------------------------------------------------------------")
                 print("=== ⚠️ SESSION: User random updated! Old: \(oldRandom) | New: \(newRandom)")
                 dependencies.secure.executeFromQueue()
             }
@@ -49,37 +50,46 @@ actor Session {
     
     func postRequestOne() {
         
-        let request = RequestOneOfOne()
-        dependencies.secure.call(request: request) { error, response in
+        // MARK: - Request 1 / 1
+        
+        let request1 = RequestOneOfOne()
+        print("--- request 1 start \(request1.path)")
+        dependencies.secure.call(request: request1) { error, response in
             if let error = error {
-                print("=== request: \(request.path) - 🔴", error)
+                print("=== request 1: \(request1.path) - 🔴", error)
                 return
             }
             
             if let response = response {
-                print("=== request: \(request.path) - 🟢", response)
+                print("=== request 1: \(request1.path) - 🟢", response)
             }
             
-            let request = RequestTwoOfOne()
-            self.dependencies.secure.call(request: request) { error, response in
+            // MARK: - Request 1 / 2
+            
+            let request2 = RequestTwoOfOne()
+            print("--- request 2 start \(request1.path)")
+            self.dependencies.secure.call(request: request2) { error, response in
                 if let error = error {
-                    print("=== request: \(request.path) - 🔴", error)
+                    print("=== request 2: \(request2.path) - 🔴", error)
                     return
                 }
                 
                 if let response = response {
-                    print("=== request: \(request.path) - 🟢", response)
+                    print("=== request 2: \(request2.path) - 🟢", response)
                 }
                 
-                let request = RequestThreeOfOne()
-                self.dependencies.secure.call(request: request) { error, response in
+                // MARK: - Request 1 / 3
+                
+                let request3 = RequestThreeOfOne()
+                print("--- request 3 start \(request1.path)")
+                self.dependencies.secure.call(request: request3) { error, response in
                     if let error = error {
-                        print("=== request: \(request.path) - 🔴", error)
+                        print("=== request 3: \(request3.path) - 🔴", error)
                         return
                     }
                     
                     if let response = response {
-                        print("=== request: \(request.path) - 🟢", response)
+                        print("=== request 3: \(request3.path) - 🟢", response)
                     }
                 }
             }
@@ -91,26 +101,70 @@ actor Session {
     }
 }
 
+// MARK: - secure/1/1
+
 struct RequestOneOfOne: SecureRequest {
+    typealias Output = ResponseOneOfOne
     var path: String = "secure/1/1"
 }
 
+struct ResponseOneOfOne: SecureResponse {
+    var data: String
+}
+
+// MARK: - secure/1/2
+
 struct RequestTwoOfOne: SecureRequest {
+    typealias Output = ResponseTwoOfOne
     var path: String = "secure/1/2"
 }
 
+struct ResponseTwoOfOne: SecureResponse {
+    var data: String
+}
+
+// MARK: - secure/1/3
+
 struct RequestThreeOfOne: SecureRequest {
+    typealias Output = ResponseThreeOfOne
     var path: String = "secure/1/3"
 }
 
+struct ResponseThreeOfOne: SecureResponse {
+    var data: String
+}
+
+
+
+// MARK: - secure/2/1
+
 struct RequestOneOfTwo: SecureRequest {
+    typealias Output = ResponseOneOfTwo
     var path: String = "secure/2/1"
 }
 
+struct ResponseOneOfTwo: SecureResponse {
+    var data: String
+}
+
+// MARK: - secure/2/2
+
 struct RequestTwoOfTwo: SecureRequest {
+    typealias Output = ResponseTwoOfTwo
     var path: String = "secure/2/2"
 }
 
+struct ResponseTwoOfTwo: SecureResponse {
+    var data: String
+}
+
+// MARK: - secure/2/3
+
 struct RequestThreeOfTwo: SecureRequest {
+    typealias Output = ResponseThreeOfTwo
     var path: String = "secure/2/3"
+}
+
+struct ResponseThreeOfTwo: SecureResponse {
+    var data: String
 }

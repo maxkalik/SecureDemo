@@ -64,7 +64,18 @@ class ServerMock {
         updateRandom()
     }
     
+    func postRequest(body: [String: String]) async throws -> Data? {
+        guard let randomStr = body["random"], let random = Int(randomStr), !expiredRandoms.contains(random) else {
+            throw ServerError.expiredRandom
+        }
+
+        updateRandom()
+        
+        return ["status": "200", "data": "Some server data"].toJSON()
+    }
+    
     func observeUser(completion: @escaping (User?) -> Void) {
         self.userUpdatedClosure = completion
     }
 }
+

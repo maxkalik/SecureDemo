@@ -7,12 +7,13 @@
 
 import Foundation
 
-protocol SecureRequest {
+protocol SecureRequest: Codable {
+    associatedtype Output: SecureResponse
     var path: String { get }
 }
 
-struct SecureResponse {
-    var status: Int
+protocol SecureResponse: Codable {
+    var data: String { get }
 }
 
 enum SecureError: Error {
@@ -21,19 +22,21 @@ enum SecureError: Error {
     case error(String)
 }
 
+
+typealias SecureCompletion = (SecureError?, SecureResponse?) -> Void
+
 class SecureService {
     
     private let dependencies: Dependencies
     
     private var currentRandom: Int?
-    private var requests: [SecureRequest] = [] {
+    private var requests: [any SecureRequest] = [] {
         didSet {
             print("+++", requests.map { $0.path })
-            // self.executeFromQueue()
         }
     }
     
-    var requestCompletion: ((SecureError?, SecureResponse?) -> Void)?
+    var requestCompletion: SecureCompletion?
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
@@ -61,7 +64,6 @@ class SecureService {
             
             guard let userRandom = await dependencies.session.user?.random, currentRandom != userRandom else {
                 requestCompletion?(nil, nil)
-                // TODO: wait more?
                 return
             }
             
@@ -70,11 +72,43 @@ class SecureService {
             requests.removeAll { $0.path == request.path }
             
             do {
-                try await dependencies.server.postRequest(random: userRandom)
-                requestCompletion?(nil, SecureResponse(status: 200))
+                let response = try await execute(request: request, random: userRandom)
+                requestCompletion?(nil, response)
             } catch {
                 requestCompletion?(.error("SECURE ERROR: Server error"), nil)
             }
+        }
+    }
+    
+    func execute<R: SecureRequest>(request: R, random: Int) async throws -> R.Output? {
+        let requestBody = [
+            "random": String(random),
+            "path": request.path
+        ]
+        
+        guard let data = try await dependencies.server.postRequest(body: requestBody) else {
+            return nil
+        }
+        
+        return try JSONDecoder().decode(R.Output.self, from: data)
+    }
+}
+
+struct DummySecureResponse: SecureResponse {
+    var data: String
+    
+    init(path: String) {
+        self.data = "Dummy Response - \(path)"
+    }
+}
+
+extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
+    func toJSON() -> Data? {
+        do {
+            let dict = self.mapValues { ($0 as? Double)?.isNaN == true ? nil : $0 }
+            return try JSONSerialization.data(withJSONObject: dict)
+        } catch {
+            return nil
         }
     }
 }
