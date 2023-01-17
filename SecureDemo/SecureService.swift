@@ -28,46 +28,47 @@ typealias SecureRequestCompletion = (request: any SecureRequest, completion: Sec
 class SecureService {
     
     private let dependencies: Dependencies
-    
     private var currentRandom: Int?
-
-    private var requestCompletions: [SecureRequestCompletion] = []  {
-        didSet {
-            print("+++", requestCompletions.map { $0.request.path })
-        }
-    }
+    private var queue: [SecureRequestCompletion] = []
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
     }
 
+    // This method just append `SecureRequestCompletion` to the queue
+    // And emmidiately runs queue becase random num can be already in a user object
     func call<R: SecureRequest>(request: R, completion: @escaping SecureCompletion) {
-        requestCompletions.append((request, completion))
+        queue.append((request, completion))
         executeFromQueue()
     }
     
+    // Call this method if random num has changed (for example from session user didSet)
     func executeFromQueue() {
         Task {
-            guard let requestCompletion = requestCompletions.first else {
+            // Check if we have something to execute in the queue
+            guard let requestCompletion = queue.first else {
                 return
             }
-
-            // let userRandom1 = await dependencies.session.user?.random
-            // print("=== Start executing from queue | USER RANDOM: \(userRandom1) | CUR RANDOM: \(currentRandom)")
             
+            // Possible cases to handle
             // CASE 1 - USER RANDOM: nil | CURRENT RANDOM: nil
             // CASE 2 - USER RANDOM: 123 | CURRENT RANDOM: nil
             // CASE 3 - USER RANDOM: 123 | CURRENT RANDOM: 123
             // CASE 4 - USER RANDOM: 321 | CURRENT RANDOM: 123
             // CASE 4 - USER RANDOM: nil | CURRENT RANDOM: 321 -> ?
             
+            // Check if current random is not the same
             guard let userRandom = await dependencies.session.user?.random, currentRandom != userRandom else {
                 return
             }
             
+            // Update current random with that what was updated in user object
             currentRandom = userRandom
 
-            requestCompletions.removeAll { $0.request.path == requestCompletion.request.path }
+            // Remove all request with the same body or path from queue
+            // I know it's questionable to remove all requests with the same body
+            // Instead of array we can use Set but for PoC I think that's enough
+            queue.removeAll { $0.request.path == requestCompletion.request.path }
             
             do {
                 let response = try await execute(request: requestCompletion.request, random: userRandom)
@@ -78,7 +79,8 @@ class SecureService {
         }
     }
     
-    func execute<R: SecureRequest>(request: R, random: Int) async throws -> R.Output? {
+    // Simulate executing request with random num
+    private func execute<R: SecureRequest>(request: R, random: Int) async throws -> R.Output? {
         let requestBody = [
             "random": String(random),
             "path": request.path

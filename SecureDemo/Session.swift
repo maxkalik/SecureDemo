@@ -18,11 +18,7 @@ actor Session {
     var user: User? {
         didSet(old) {
             if let newRandom = user?.random, old?.random != newRandom {
-                let oldRandomNum = (old?.random ?? -1)
-                let oldRandom = oldRandomNum < 1 ? "nil" : "\(oldRandomNum)"
-                print("--------------------------------------------------------------------------")
-                print("=== ⚠️ SESSION: User random updated! Old: \(oldRandom) | New: \(newRandom)")
-                print("--------------------------------------------------------------------------")
+                // It can be implemented with Notification
                 dependencies.secure.executeFromQueue()
             }
         }
@@ -35,9 +31,6 @@ actor Session {
     func fetchUser() async {
         do {
             self.user = try await dependencies.server.fetchMockedUser()
-            if let user = self.user {
-                print("session == fetched user", user)
-            }
         } catch {
             print(error)
         }
@@ -48,9 +41,12 @@ actor Session {
             self.user = user
         }
     }
-    
-    func postRequestOne(completion: @escaping () -> Void) {
+}
 
+// MARK: - Requests
+
+extension Session {
+    func postRequestOne(completion: @escaping () -> Void) {
         let request1 = Request1x1()
         dependencies.secure.call(request: request1) { result in
             self.debugResponse(request: request1, result: result)
@@ -98,7 +94,11 @@ actor Session {
             completion()
         }
     }
-    
+}
+
+// MARK: - Debug pring
+
+extension Session {
     private func debugResponse<R: SecureRequest>(request: R, result: Result<SecureResponse?, SecureError>) {
         switch result {
         case .success(let response):
