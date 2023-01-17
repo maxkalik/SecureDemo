@@ -22,7 +22,8 @@ enum SecureError: Error {
     case error(String)
 }
 
-typealias SecureCompletion = (SecureError?, SecureResponse?) -> Void
+typealias SecureCompletion = (Result<SecureResponse?, SecureError>) -> Void
+typealias SecureRequestCompletion = (request: any SecureRequest, completion: SecureCompletion?)
 
 class SecureService {
     
@@ -30,7 +31,7 @@ class SecureService {
     
     private var currentRandom: Int?
 
-    private var requestCompletions: [(request: any SecureRequest, completion: SecureCompletion?)] = []  {
+    private var requestCompletions: [SecureRequestCompletion] = []  {
         didSet {
             print("+++", requestCompletions.map { $0.request.path })
         }
@@ -40,7 +41,7 @@ class SecureService {
         self.dependencies = dependencies
     }
 
-    func call<R: SecureRequest>(request: R, completion: @escaping (SecureError?, SecureResponse?) -> Void) {
+    func call<R: SecureRequest>(request: R, completion: @escaping SecureCompletion) {
         requestCompletions.append((request, completion))
         executeFromQueue()
     }
@@ -70,9 +71,9 @@ class SecureService {
             
             do {
                 let response = try await execute(request: requestCompletion.request, random: userRandom)
-                requestCompletion.completion?(nil, response)
+                requestCompletion.completion?(.success(response))
             } catch {
-                requestCompletion.completion?(.error("SECURE ERROR: Server error"), nil)
+                requestCompletion.completion?(.failure(.error("SECURE ERROR: Server error")))
             }
         }
     }
