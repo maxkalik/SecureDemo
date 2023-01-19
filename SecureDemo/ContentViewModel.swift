@@ -29,10 +29,9 @@ class ContentViewModel: ObservableObject {
     func buttonOnePressed() {
         isLoadingButton1 = true
         Task {
-            await dependencies.session.postRequestOne {
-                DispatchQueue.main.async { [weak self] in
-                    self?.isLoadingButton1 = false
-                }
+            await dependencies.session.postRequestOne()
+            await MainActor.run {
+                isLoadingButton1 = false
             }
         }
     }
@@ -40,11 +39,12 @@ class ContentViewModel: ObservableObject {
     func buttonTwoPressed() {
         isLoadingButton2 = true
         Task {
-            await dependencies.session.postRequestTwo { response in
+            if let response = await dependencies.session.postRequestTwo() {
                 print("=== ===> button two pressed and got response: \(response)")
-                DispatchQueue.main.async { [weak self] in
-                    self?.isLoadingButton2 = false
-                }
+            }
+            
+            await MainActor.run {
+                isLoadingButton2 = false
             }
         }
     }
@@ -52,10 +52,10 @@ class ContentViewModel: ObservableObject {
     func buttonThreePressed() {
         isLoadingButton3 = true
         Task {
-            await dependencies.session.postRequestThree {
-                DispatchQueue.main.async { [weak self] in
-                    self?.isLoadingButton3 = false
-                }
+            await dependencies.session.postRequestThree()
+            
+            await MainActor.run {
+                isLoadingButton3 = false
             }
         }
     }

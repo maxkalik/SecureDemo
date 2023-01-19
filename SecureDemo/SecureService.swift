@@ -42,6 +42,15 @@ class SecureService {
         executeFromQueue()
     }
     
+    @discardableResult
+    func call<R: SecureRequest>(request: R) async throws -> SecureResponse? {
+        try await withCheckedThrowingContinuation { continuation in
+            call(request: request) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+    
     // Call this method if random num has changed (for example from session user didSet)
     func executeFromQueue() {
         Task {

@@ -32,7 +32,7 @@ actor Session {
         do {
             self.user = try await dependencies.server.fetchMockedUser()
         } catch {
-            print(error)
+            print("=== 🔴 fetching user error")
         }
     }
     
@@ -46,66 +46,53 @@ actor Session {
 // MARK: - Requests
 
 extension Session {
-    func postRequestOne(completion: @escaping () -> Void) {
-        let request1 = Request1x1()
-        dependencies.secure.call(request: request1) { result in
-            self.debugResponse(request: request1, result: result)
-            
-            let request2 = Request1x2()
-            self.dependencies.secure.call(request: request2) { result in
-                self.debugResponse(request: request2, result: result)
-                
-                let request3 = Request1x3()
-                self.dependencies.secure.call(request: request3) { result in
-                    self.debugResponse(request: request3, result: result)
-                    
-                    completion()
-                }
-            }
-        }
+    // MARK: Request One
+    
+    func postRequestOne() async {
+        let request1x1 = Request1x1()
+        await debugResponse(request: request1x1)
+        
+        let request1x2 = Request1x2()
+        await debugResponse(request: request1x2)
+        
+        let request1x3 = Request1x3()
+        await debugResponse(request: request1x3)
     }
     
-    func postRequestTwo(completion: @escaping (Response2x2) -> Void) {
-        let request = Request2x1()
-        self.dependencies.secure.call(request: request) { result in
-            self.debugResponse(request: request, result: result)
-            
-            let request = Request2x2()
-            self.dependencies.secure.call(request: request) { result in
-                self.debugResponse(request: request, result: result)
-                
-                switch result {
-                case .success(let response):
-                    if let response = response as? Response2x2 {
-                        completion(response)
-                    }
-                case .failure:
-                    return
-                }
-            }
-        }
+    // MARK: Request Two
+    
+    func postRequestTwo() async -> Response2x2? {
+        let request2x1 = Request2x1()
+        await debugResponse(request: request2x1)
+        
+        let request2x2 = Request2x2()
+        let response2x2 = await debugResponse(request: request2x2)
+        return response2x2 as? Response2x2
     }
     
-    func postRequestThree(completion: @escaping () -> Void) {
-        let request = Request3x1()
-        self.dependencies.secure.call(request: request) { result in
-            self.debugResponse(request: request, result: result)
-            
-            completion()
-        }
+    // MARK: Request Three
+
+    func postRequestThree() async {
+        let request3x1 = Request3x1()
+        await debugResponse(request: request3x1)
     }
 }
 
 // MARK: - Debug pring
 
 extension Session {
-    private func debugResponse<R: SecureRequest>(request: R, result: Result<SecureResponse?, SecureError>) {
-        switch result {
-        case .success(let response):
-            guard let response = response else { return }
+    @discardableResult
+    private func debugResponse<R: SecureRequest>(request: R) async -> SecureResponse? {
+        do {
+            guard let response = try await dependencies.secure.call(request: request) else {
+                print("=== request: \(request.path) - 🔴 response is nil")
+                return nil
+            }
             print("=== request: \(request.path) - 🟢", response)
-        case .failure(let error):
+            return response
+        } catch {
             print("=== request: \(request.path) - 🔴", error)
+            return nil
         }
     }
 }
