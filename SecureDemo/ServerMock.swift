@@ -9,7 +9,7 @@ import Foundation
 
 struct User {
     let username: String = "maxpro"
-    var random: Int?
+    var random: Int
 }
 
 enum ServerError: Error {
@@ -23,11 +23,13 @@ class ServerMock {
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
-        
-        updateRandom()
     }
 
-    private var user: User = User() {
+    private var currentRandom: Int {
+        Int.random(in: 1000000...9000000)
+    }
+    
+    private lazy var user: User = User(random: currentRandom) {
         didSet {
             userUpdatedClosure?(user)
         }
@@ -38,14 +40,11 @@ class ServerMock {
     private var expiredRandoms: [Int] = []
     
     private func updateRandom() {
-        if let random = user.random {
-            expiredRandoms.append(random)
-        }
+        expiredRandoms.append(user.random)
         Task {
             let randomSec = UInt64.random(in: 3_000_000_000...5_000_000_000)
             try await Task.sleep(nanoseconds: randomSec)
-            let random = Int.random(in: 1000000...9000000)
-            user.random = random
+            user.random = currentRandom
         }
     }
     
@@ -55,10 +54,11 @@ class ServerMock {
     }
 
     func postRequest(body: [String: String]) async throws -> Data? {
+
         guard let randomStr = body["random"], let random = Int(randomStr), !expiredRandoms.contains(random) else {
             throw ServerError.expiredRandom
         }
-
+        
         updateRandom()
         
         guard let path = body["path"] else {

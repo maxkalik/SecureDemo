@@ -10,6 +10,7 @@ import Foundation
 protocol SecureRequest: Codable {
     associatedtype Output: SecureResponse
     var path: String { get }
+    var random: Int? { get set }
 }
 
 protocol SecureResponse: Codable {
@@ -28,7 +29,7 @@ typealias SecureRequestCompletion = (request: any SecureRequest, completion: Sec
 class SecureService {
     
     private let dependencies: Dependencies
-    private var currentRandom: Int?
+    private var expiredRandom: [Int] = []
     private var queue: [SecureRequestCompletion] = []
     
     init(dependencies: Dependencies) {
@@ -37,25 +38,30 @@ class SecureService {
 
     // This method just append `SecureRequestCompletion` to the queue
     // And emmidiately runs queue becase random num can be already in a user object
-    func call<R: SecureRequest>(request: R, completion: @escaping SecureCompletion) {
+    func call<R: SecureRequest>(request: R, completion: @escaping (Result<SecureResponse?, SecureError>) -> Void) {
+        guard let random = request.random else {
+            completion(.failure(.userRandom))
+            return
+        }
         queue.append((request, completion))
-        executeFromQueue()
+        executeFromQueue(random)
     }
     
     @discardableResult
-    func call<R: SecureRequest>(request: R) async throws -> SecureResponse? {
+    func call<R: SecureRequest>(request: R) async throws -> R.Output? {
         try await withCheckedThrowingContinuation { continuation in
             call(request: request) { result in
                 continuation.resume(with: result)
             }
-        }
+        } as? R.Output
     }
     
     // Call this method if random num has changed (for example from session user didSet)
-    func executeFromQueue() {
+    func executeFromQueue(_ random: Int) {
         Task {
             // Check if we have something to execute in the queue
             guard let requestCompletion = queue.first else {
+                expiredRandom.removeAll()
                 return
             }
             
@@ -67,12 +73,14 @@ class SecureService {
             // CASE 4 - USER RANDOM: nil | CURRENT RANDOM: 321 -> ?
             
             // Check if current random is not the same
-            guard let userRandom = await dependencies.session.user?.random, currentRandom != userRandom else {
+            guard !expiredRandom.contains(random) else {
+                print("=== QUIT:", queue.map { $0.request.path })
                 return
             }
-            
+
             // Update current random with that what was updated in user object
-            currentRandom = userRandom
+            expiredRandom.append(random)
+            
 
             // Remove all request with the same body or path from queue
             // I know it's questionable to remove all requests with the same body
@@ -80,7 +88,10 @@ class SecureService {
             queue.removeAll { $0.request.path == requestCompletion.request.path }
             
             do {
-                let response = try await execute(request: requestCompletion.request, random: userRandom)
+                let response = try await execute(
+                    request: requestCompletion.request,
+                    random: random
+                )
                 requestCompletion.completion?(.success(response))
             } catch {
                 requestCompletion.completion?(.failure(.error("SECURE ERROR: Server error")))

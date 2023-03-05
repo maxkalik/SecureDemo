@@ -13,6 +13,7 @@ import Foundation
 struct Request1x1: SecureRequest {
     typealias Output = Response1x1
     var path: String = "secure/1x1"
+    var random: Int?
 }
 
 struct Response1x1: SecureResponse {
@@ -24,6 +25,7 @@ struct Response1x1: SecureResponse {
 struct Request1x2: SecureRequest {
     typealias Output = Response1x2
     var path: String = "secure/1x2"
+    var random: Int?
 }
 
 struct Response1x2: SecureResponse {
@@ -35,6 +37,7 @@ struct Response1x2: SecureResponse {
 struct Request1x3: SecureRequest {
     typealias Output = Response1x3
     var path: String = "secure/1x3"
+    var random: Int?
 }
 
 struct Response1x3: SecureResponse {
@@ -46,6 +49,7 @@ struct Response1x3: SecureResponse {
 struct Request2x1: SecureRequest {
     typealias Output = Response2x1
     var path: String = "secure/2x1"
+    var random: Int?
 }
 
 struct Response2x1: SecureResponse {
@@ -57,6 +61,7 @@ struct Response2x1: SecureResponse {
 struct Request2x2: SecureRequest {
     typealias Output = Response2x2
     var path: String = "secure/2x2"
+    var random: Int?
 }
 
 struct Response2x2: SecureResponse {
@@ -69,6 +74,7 @@ struct Response2x2: SecureResponse {
 struct Request3x1: SecureRequest {
     typealias Output = Response3x1
     var path: String = "secure/3x1"
+    var random: Int?
 }
 
 struct Response3x1: SecureResponse {
