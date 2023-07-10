@@ -8,11 +8,6 @@
 import Foundation
 import Combine
 
-struct User {
-    let username: String = "maxpro"
-    var random: Int
-}
-
 enum ServerError: Error {
     case expiredRandom
     case badRequest
@@ -49,29 +44,10 @@ class ServerSimulator {
         }
     }
     
-    func fetchMockedUser() async throws -> User? {
-        try await Task.sleep(nanoseconds: 2_000_000_000)
-        return self.user
-    }
-    
     func fetchMockedUser(completion: @escaping (User?) -> Void) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             completion(self.user)
         }
-    }
-
-    func postRequest(body: [String: String]) async throws -> Data? {
-
-        guard let randomStr = body["random"], let random = Int(randomStr), !expiredRandoms.contains(random) else {
-            throw ServerError.expiredRandom
-        }
-        
-        updateRandom()
-        
-        guard let path = body["path"] else {
-            throw ServerError.badRequest
-        }
-        return ["data": "Some server data for request \(path)"].toJSON()
     }
     
     func postRequest(body: [String: String], completion: (Data?, ServerError?) -> Void) {
@@ -111,4 +87,3 @@ class ServerSimulator {
         self.userUpdatedClosure = completion
     }
 }
-
