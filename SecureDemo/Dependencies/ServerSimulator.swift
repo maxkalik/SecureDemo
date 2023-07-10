@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 struct User {
     let username: String = "maxpro"
@@ -17,7 +18,7 @@ enum ServerError: Error {
     case badRequest
 }
 
-class ServerMock {
+class ServerSimulator {
 
     private let dependencies: Dependencies
     
@@ -52,6 +53,12 @@ class ServerMock {
         try await Task.sleep(nanoseconds: 2_000_000_000)
         return self.user
     }
+    
+    func fetchMockedUser(completion: @escaping (User?) -> Void) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            completion(self.user)
+        }
+    }
 
     func postRequest(body: [String: String]) async throws -> Data? {
 
@@ -65,6 +72,39 @@ class ServerMock {
             throw ServerError.badRequest
         }
         return ["data": "Some server data for request \(path)"].toJSON()
+    }
+    
+    func postRequest(body: [String: String], completion: (Data?, ServerError?) -> Void) {
+
+        guard let randomStr = body["random"],
+              let random = Int(randomStr),
+              !expiredRandoms.contains(random) else {
+            completion(nil, .expiredRandom)
+            return
+        }
+        
+        updateRandom()
+        
+        guard let path = body["path"] else {
+            completion(nil, .badRequest)
+            return
+        }
+        
+        completion(["data": "Some server data for request \(path)"].toJSON(), nil)
+    }
+    
+    func postRequest(body: [String: String]) -> Future<Data?, ServerError> {
+        Future { promise in
+            self.postRequest(body: body) { data, error in
+                if let data {
+                    promise(.success(data))
+                } else if let error {
+                    promise(.failure(error))
+                } else {
+                    promise(.failure(.badRequest))
+                }
+            }
+        }
     }
     
     func observeUser(completion: @escaping (User?) -> Void) {

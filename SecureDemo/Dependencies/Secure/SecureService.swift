@@ -17,14 +17,14 @@ protocol SecureResponse: Codable {
     var data: String { get }
 }
 
-enum SecureError: Error {
+enum SecureError: Error, Equatable {
     case userRandom
     case requestNotFound
     case error(String)
 }
 
-typealias SecureCompletion = (Result<SecureResponse?, SecureError>) -> Void
-typealias SecureRequestCompletion = (request: any SecureRequest, completion: SecureCompletion?)
+typealias SecureResultCompletion = (Result<SecureResponse?, SecureError>) -> Void
+typealias SecureRequestCompletion = (request: any SecureRequest, completion: SecureResultCompletion?)
 
 class SecureService {
     

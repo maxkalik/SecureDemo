@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		11A8BD722976CC96000B8668 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A8BD712976CC96000B8668 /* Extensions.swift */; };
 		11A8BD742976E494000B8668 /* Requests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A8BD732976E494000B8668 /* Requests.swift */; };
+		11C4B2B32A5B242400083C62 /* SecureService2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2B22A5B242400083C62 /* SecureService2.swift */; };
+		11C4B2B52A5B55DA00083C62 /* SecureServiceCombine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2B42A5B55DA00083C62 /* SecureServiceCombine.swift */; };
+		11C4B2B82A5B5C7D00083C62 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2B72A5B5C7D00083C62 /* UserService.swift */; };
 		11E52BD129753FFB006AE8F4 /* SecureDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BD029753FFB006AE8F4 /* SecureDemoApp.swift */; };
 		11E52BD329753FFB006AE8F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BD229753FFB006AE8F4 /* ContentView.swift */; };
 		11E52BD529753FFC006AE8F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 11E52BD429753FFC006AE8F4 /* Assets.xcassets */; };
@@ -19,7 +22,7 @@
 		11E52BFB297540FA006AE8F4 /* SecureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BFA297540FA006AE8F4 /* SecureService.swift */; };
 		11E52BFD29754109006AE8F4 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BFC29754109006AE8F4 /* ContentViewModel.swift */; };
 		11E52BFF29754120006AE8F4 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BFE29754120006AE8F4 /* Session.swift */; };
-		11E52C01297543A9006AE8F4 /* ServerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52C00297543A9006AE8F4 /* ServerMock.swift */; };
+		11E52C01297543A9006AE8F4 /* ServerSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52C00297543A9006AE8F4 /* ServerSimulator.swift */; };
 		11E52C03297562F9006AE8F4 /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52C02297562F9006AE8F4 /* Dependencies.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +47,9 @@
 		11A8BD712976CC96000B8668 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		11A8BD732976E494000B8668 /* Requests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Requests.swift; sourceTree = "<group>"; };
 		11B4603729B3EF9900FDB456 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		11C4B2B22A5B242400083C62 /* SecureService2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureService2.swift; sourceTree = "<group>"; };
+		11C4B2B42A5B55DA00083C62 /* SecureServiceCombine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureServiceCombine.swift; sourceTree = "<group>"; };
+		11C4B2B72A5B5C7D00083C62 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
 		11E52BCD29753FFB006AE8F4 /* SecureDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		11E52BD029753FFB006AE8F4 /* SecureDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureDemoApp.swift; sourceTree = "<group>"; };
 		11E52BD229753FFB006AE8F4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -57,7 +63,7 @@
 		11E52BFA297540FA006AE8F4 /* SecureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureService.swift; sourceTree = "<group>"; };
 		11E52BFC29754109006AE8F4 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
 		11E52BFE29754120006AE8F4 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
-		11E52C00297543A9006AE8F4 /* ServerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerMock.swift; sourceTree = "<group>"; };
+		11E52C00297543A9006AE8F4 /* ServerSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerSimulator.swift; sourceTree = "<group>"; };
 		11E52C02297562F9006AE8F4 /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -86,9 +92,73 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		11B4603829B556CB00FDB456 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				11C4B2B62A5B5C7200083C62 /* UserService */,
+				11C4B2B12A5B241400083C62 /* Secure */,
+				11B4603D29B5572700FDB456 /* Session */,
+				11E52C00297543A9006AE8F4 /* ServerSimulator.swift */,
+				11E52C02297562F9006AE8F4 /* Dependencies.swift */,
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
+		11B4603929B556E700FDB456 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				11E52BD029753FFB006AE8F4 /* SecureDemoApp.swift */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		11B4603A29B556FB00FDB456 /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				11E52BD229753FFB006AE8F4 /* ContentView.swift */,
+				11E52BFC29754109006AE8F4 /* ContentViewModel.swift */,
+			);
+			path = Content;
+			sourceTree = "<group>";
+		};
+		11B4603B29B5570800FDB456 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				11A8BD712976CC96000B8668 /* Extensions.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		11B4603D29B5572700FDB456 /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				11A8BD732976E494000B8668 /* Requests.swift */,
+				11E52BFE29754120006AE8F4 /* Session.swift */,
+			);
+			path = Session;
+			sourceTree = "<group>";
+		};
+		11C4B2B12A5B241400083C62 /* Secure */ = {
+			isa = PBXGroup;
+			children = (
+				11E52BFA297540FA006AE8F4 /* SecureService.swift */,
+				11C4B2B22A5B242400083C62 /* SecureService2.swift */,
+			);
+			path = Secure;
+			sourceTree = "<group>";
+		};
+		11C4B2B62A5B5C7200083C62 /* UserService */ = {
+			isa = PBXGroup;
+			children = (
+				11C4B2B72A5B5C7D00083C62 /* UserService.swift */,
+			);
+			path = UserService;
+			sourceTree = "<group>";
+		};
 		11E52BC429753FFB006AE8F4 = {
 			isa = PBXGroup;
 			children = (
+				11C4B2B42A5B55DA00083C62 /* SecureServiceCombine.swift */,
 				11E52BCF29753FFB006AE8F4 /* SecureDemo */,
 				11E52BE029753FFC006AE8F4 /* SecureDemoTests */,
 				11E52BEA29753FFC006AE8F4 /* SecureDemoUITests */,
@@ -109,18 +179,13 @@
 		11E52BCF29753FFB006AE8F4 /* SecureDemo */ = {
 			isa = PBXGroup;
 			children = (
+				11B4603B29B5570800FDB456 /* Utils */,
+				11B4603A29B556FB00FDB456 /* Content */,
+				11B4603929B556E700FDB456 /* Application */,
+				11B4603829B556CB00FDB456 /* Dependencies */,
 				11B4603729B3EF9900FDB456 /* Info.plist */,
-				11E52BD029753FFB006AE8F4 /* SecureDemoApp.swift */,
-				11E52BD229753FFB006AE8F4 /* ContentView.swift */,
-				11E52BFC29754109006AE8F4 /* ContentViewModel.swift */,
 				11E52BD429753FFC006AE8F4 /* Assets.xcassets */,
 				11E52BD629753FFC006AE8F4 /* Preview Content */,
-				11E52BFA297540FA006AE8F4 /* SecureService.swift */,
-				11A8BD712976CC96000B8668 /* Extensions.swift */,
-				11E52BFE29754120006AE8F4 /* Session.swift */,
-				11A8BD732976E494000B8668 /* Requests.swift */,
-				11E52C00297543A9006AE8F4 /* ServerMock.swift */,
-				11E52C02297562F9006AE8F4 /* Dependencies.swift */,
 			);
 			path = SecureDemo;
 			sourceTree = "<group>";
@@ -281,11 +346,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				11E52C03297562F9006AE8F4 /* Dependencies.swift in Sources */,
-				11E52C01297543A9006AE8F4 /* ServerMock.swift in Sources */,
+				11C4B2B32A5B242400083C62 /* SecureService2.swift in Sources */,
+				11E52C01297543A9006AE8F4 /* ServerSimulator.swift in Sources */,
 				11E52BFF29754120006AE8F4 /* Session.swift in Sources */,
 				11A8BD742976E494000B8668 /* Requests.swift in Sources */,
 				11A8BD722976CC96000B8668 /* Extensions.swift in Sources */,
 				11E52BFD29754109006AE8F4 /* ContentViewModel.swift in Sources */,
+				11C4B2B52A5B55DA00083C62 /* SecureServiceCombine.swift in Sources */,
+				11C4B2B82A5B5C7D00083C62 /* UserService.swift in Sources */,
 				11E52BD329753FFB006AE8F4 /* ContentView.swift in Sources */,
 				11E52BD129753FFB006AE8F4 /* SecureDemoApp.swift in Sources */,
 				11E52BFB297540FA006AE8F4 /* SecureService.swift in Sources */,
