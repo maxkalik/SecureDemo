@@ -10,4 +10,6 @@ import Foundation
 struct User {
     let username: String = "maxpro"
     var random: Int
+    
+    var randoms: [Int]
 }

@@ -25,8 +25,13 @@ class SecureService {
     // This method just append `SecureRequestCompletion` to the queue
     // And emmidiately runs queue becase random num can be already in a user object
     public func call<R: SecureRequest>(request: R, completion: @escaping SecureRequestResult) {
-        guard let random = request.random else {
-            completion(.failure(.userRandom))
+//        guard let random = request.random else {
+//            completion(.failure(.userRandom))
+//            return
+//        }
+        
+        guard let randoms = dependencies.user.userSubject.value?.randoms, !randoms.isEmpty else {
+            print("=== 🔴 user randoms empty")
             return
         }
         
@@ -39,16 +44,35 @@ class SecureService {
         
         accessQueue.async {
             self.requestsQueue.append(requestCompletion)
-            self.executeFromQueue(random)
+            self.executeFromQueue(randoms)
+        }
+    }
+    
+    public func executeFromQueue(_ randoms: [Int]) {
+        accessQueue.async {
+            self._executeFromQueue(randoms)
+        }
+    }
+    
+    private func _executeFromQueue(_ randoms: [Int]) {
+        guard !randoms.isEmpty else {
+            print("=== 🔴 user randoms empty")
+            return
+        }
+        
+        if let random = randoms.first, !expiredRandom.contains(random) {
+            _executeFromQueue(random)
+        } else {
+            _executeFromQueue(Array(randoms.dropFirst()))
         }
     }
     
     // Call this method if random num has changed (for example from session user didSet)
-    public func executeFromQueue(_ random: Int) {
-        accessQueue.async {
-            self._executeFromQueue(random)
-        }
-    }
+//    public func executeFromQueue(_ random: Int) {
+//        accessQueue.async {
+//            self._executeFromQueue(random)
+//        }
+//    }
     
     // Should be called only in `accessQueue`
     private func _executeFromQueue(_ random: Int) {

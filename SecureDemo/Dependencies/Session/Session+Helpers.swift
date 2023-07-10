@@ -9,18 +9,18 @@ import Foundation
 import Combine
 
 extension Session {
-    
+
     // Completion version
     
     func executeSecureRequest<R: SecureRequest>(_ request: R, completion: @escaping (R.Output?) -> Void) {
-        guard let random = dependencies.user.userSubject.value?.random else {
-            completion(nil)
-            print("=== 🔴 user random nil")
-            return
-        }
-        
-        var request = request
-        request.random = random
+//        guard let random = dependencies.user.userSubject.value?.random else {
+//            completion(nil)
+//            print("=== 🔴 user random nil")
+//            return
+//        }
+//        
+//        var request = request
+//        request.random = random
         
         dependencies.secure.call(request: request) { result in
             switch result {

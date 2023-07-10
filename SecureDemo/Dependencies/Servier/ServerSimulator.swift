@@ -25,7 +25,11 @@ class ServerSimulator {
         Int.random(in: 1000000...9000000)
     }
     
-    private lazy var user: User = User(random: currentRandom) {
+    private var currentRandoms: [Int] {
+        [Int](repeating: currentRandom, count: 5)
+    }
+    
+    private lazy var user: User = User(random: currentRandom, randoms: currentRandoms) {
         didSet {
             userUpdatedClosure?(user)
         }
@@ -40,7 +44,11 @@ class ServerSimulator {
         Task {
             let randomSec = UInt64.random(in: 3_000_000_000...5_000_000_000)
             try await Task.sleep(nanoseconds: randomSec)
+
             user.random = currentRandom
+            user.randoms = currentRandoms
+            
+            print("=== randoms updated", user.randoms)
         }
     }
     
