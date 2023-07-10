@@ -11,6 +11,8 @@ fileprivate let maxRetries = 3
 
 class SecureService {
     
+    // This queue serves as a synchronization mechanism for the requestsQueue and expiredRandom
+    // Because they could be changed from different threads using call and executeFromQueue methods
     private let accessQueue = DispatchQueue(label: "secureService.accessQueue")
     private let dependencies: Dependencies
     private var expiredRandom: [Int] = []
@@ -48,9 +50,11 @@ class SecureService {
         }
     }
     
+    // Should be called only in `accessQueue`
     private func _executeFromQueue(_ random: Int) {
-        guard let requestCompletion = self.requestsQueue.first(where: { $0.status == .unprocessed }) else {
-            self.expiredRandom.removeAll()
+        // We need only unprocessed request completions from the queue
+        guard let requestCompletion = requestsQueue.first(where: { $0.status == .unprocessed }) else {
+            expiredRandom.removeAll()
             return
         }
         
@@ -64,7 +68,7 @@ class SecureService {
         // Check if current random is not the same
         // If it's still the same random number then we need just quit silently
         // and wait for another call of `executeFromQueue`
-        guard !self.expiredRandom.contains(random) else {
+        guard !expiredRandom.contains(random) else {
             print("=== QUIT:", requestsQueue.map { $0.request.path })
             return
         }
@@ -77,6 +81,9 @@ class SecureService {
         // Instead of array we can use Set but for PoC I think that's enough
         requestsQueue.removeAll { $0.request.path == requestCompletion.request.path }
 
+        // It captures a copy of the mutableRequestCompletion object
+        // ensuring the completion block does not affect other threads
+        // that may be manipulating the requestsQueue
         var mutableRequestCompletion = requestCompletion
         mutableRequestCompletion.status = .processing
         execute(request: mutableRequestCompletion.request, random: random) { result in
