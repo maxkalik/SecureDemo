@@ -15,7 +15,7 @@
 		11C4B2BA2A5C25C800083C62 /* SecureRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2B92A5C25C800083C62 /* SecureRequest.swift */; };
 		11C4B2BC2A5C25E900083C62 /* SecureResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BB2A5C25E900083C62 /* SecureResponse.swift */; };
 		11C4B2BE2A5C25FD00083C62 /* SecureError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BD2A5C25FD00083C62 /* SecureError.swift */; };
-		11C4B2C02A5C263D00083C62 /* SecureResultCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BF2A5C263D00083C62 /* SecureResultCompletion.swift */; };
+		11C4B2C02A5C263D00083C62 /* SecureRequestResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BF2A5C263D00083C62 /* SecureRequestResult.swift */; };
 		11C4B2C32A5C287E00083C62 /* SecureRequestCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C22A5C287E00083C62 /* SecureRequestCompletion.swift */; };
 		11C4B2C52A5C2B3E00083C62 /* SessionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C42A5C2B3E00083C62 /* SessionError.swift */; };
 		11C4B2C72A5C2B5700083C62 /* Session+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C62A5C2B5700083C62 /* Session+Helpers.swift */; };
@@ -61,7 +61,7 @@
 		11C4B2B92A5C25C800083C62 /* SecureRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureRequest.swift; sourceTree = "<group>"; };
 		11C4B2BB2A5C25E900083C62 /* SecureResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureResponse.swift; sourceTree = "<group>"; };
 		11C4B2BD2A5C25FD00083C62 /* SecureError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureError.swift; sourceTree = "<group>"; };
-		11C4B2BF2A5C263D00083C62 /* SecureResultCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureResultCompletion.swift; sourceTree = "<group>"; };
+		11C4B2BF2A5C263D00083C62 /* SecureRequestResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureRequestResult.swift; sourceTree = "<group>"; };
 		11C4B2C22A5C287E00083C62 /* SecureRequestCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureRequestCompletion.swift; sourceTree = "<group>"; };
 		11C4B2C42A5C2B3E00083C62 /* SessionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionError.swift; sourceTree = "<group>"; };
 		11C4B2C62A5C2B5700083C62 /* Session+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Helpers.swift"; sourceTree = "<group>"; };
@@ -177,7 +177,7 @@
 		11C4B2C12A5C282000083C62 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				11C4B2BF2A5C263D00083C62 /* SecureResultCompletion.swift */,
+				11C4B2BF2A5C263D00083C62 /* SecureRequestResult.swift */,
 				11C4B2B92A5C25C800083C62 /* SecureRequest.swift */,
 				11C4B2BB2A5C25E900083C62 /* SecureResponse.swift */,
 				11C4B2BD2A5C25FD00083C62 /* SecureError.swift */,
@@ -395,7 +395,7 @@
 				11C4B2C52A5C2B3E00083C62 /* SessionError.swift in Sources */,
 				11C4B2CC2A5C306700083C62 /* ExperimantalServer.swift in Sources */,
 				11A8BD742976E494000B8668 /* Requests.swift in Sources */,
-				11C4B2C02A5C263D00083C62 /* SecureResultCompletion.swift in Sources */,
+				11C4B2C02A5C263D00083C62 /* SecureRequestResult.swift in Sources */,
 				11A8BD722976CC96000B8668 /* Extensions.swift in Sources */,
 				11E52BFD29754109006AE8F4 /* ContentViewModel.swift in Sources */,
 				11C4B2C72A5C2B5700083C62 /* Session+Helpers.swift in Sources */,

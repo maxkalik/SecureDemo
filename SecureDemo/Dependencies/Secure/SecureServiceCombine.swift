@@ -10,13 +10,11 @@ import Combine
 
 class SecureServiceCombine {
     
+    private let accessQueue = DispatchQueue(label: "secureService.accessQueue")
     private let dependencies: Dependencies
     private var expiredRandom: [Int] = []
-    private let accessQueue = DispatchQueue(label: "SecureService.queueAccessQueue")
     private var requestsQueue: [SecureCombineRequestCompletion] = []
-    private var pendingRequests: [String: SecureCombineRequestCompletion] = [:]
-    
-    private var cancellables: Set<AnyCancellable> = []
+    private var disposeBag: DisposeBag = []
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
@@ -31,12 +29,11 @@ class SecureServiceCombine {
         let requestCompletion = SecureCombineRequestCompletion(
             request: request,
             status: .unprocessed,
-            completion: completion
+            result: completion
         )
         
         accessQueue.async {
             self.requestsQueue.append(requestCompletion)
-            self.pendingRequests[request.path] = requestCompletion
             self.executeFromQueue(random)
         }
         
@@ -63,14 +60,17 @@ class SecureServiceCombine {
             return
         }
         
-        guard !self.expiredRandom.contains(random) else { return }
+        guard !self.expiredRandom.contains(random) else {
+            print("=== QUIT:", requestsQueue.map { $0.request.path })
+            return
+        }
         
         self.expiredRandom.append(random)
         requestsQueue.removeAll { $0.request.path == requestCompletion.request.path }
         
         var mutableRequestCompletion = requestCompletion
         mutableRequestCompletion.status = .processing
-        self.execute(request: mutableRequestCompletion.request, random: random)
+        execute(request: mutableRequestCompletion.request, random: random)
             .sink { result in
                 switch result {
                 case .finished:
@@ -78,11 +78,10 @@ class SecureServiceCombine {
                 case .failure(let error):
                     mutableRequestCompletion.status = .error(error)
                 }
-                self.pendingRequests[mutableRequestCompletion.request.path] = nil
             } receiveValue: { response in
-                mutableRequestCompletion.completion.send(response)
+                mutableRequestCompletion.result.send(response)
             }
-            .store(in: &cancellables)
+            .store(in: &disposeBag)
     }
     
     private func execute<R: SecureRequest>(request: R, random: Int) -> AnyPublisher<SecureResponse?, SecureError> {

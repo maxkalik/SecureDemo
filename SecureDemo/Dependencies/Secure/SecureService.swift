@@ -11,11 +11,10 @@ fileprivate let maxRetries = 3
 
 class SecureService {
     
+    private let accessQueue = DispatchQueue(label: "secureService.accessQueue")
     private let dependencies: Dependencies
     private var expiredRandom: [Int] = []
     private var requestsQueue: [SecureRequestCompletion] = []
-    private let accessQueue = DispatchQueue(label: "secureService.accessQueue")
-    private var pendingRequests: [String: SecureRequestCompletion] = [:]
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
@@ -23,7 +22,7 @@ class SecureService {
     
     // This method just append `SecureRequestCompletion` to the queue
     // And emmidiately runs queue becase random num can be already in a user object
-    public func call<R: SecureRequest>(request: R, completion: @escaping SecureResultCompletion) {
+    public func call<R: SecureRequest>(request: R, completion: @escaping SecureRequestResult) {
         guard let random = request.random else {
             completion(.failure(.userRandom))
             return
@@ -33,12 +32,11 @@ class SecureService {
             request: request,
             retries: 0,
             status: .unprocessed,
-            completion: completion
+            result: completion
         )
         
         accessQueue.async {
             self.requestsQueue.append(requestCompletion)
-            self.pendingRequests[request.path] = requestCompletion
             self.executeFromQueue(random)
         }
     }
@@ -64,6 +62,8 @@ class SecureService {
         // CASE 4 - USER RANDOM: nil | CURRENT RANDOM: 321 -> ?
         
         // Check if current random is not the same
+        // If it's still the same random number then we need just quit silently
+        // and wait for another call of `executeFromQueue`
         guard !self.expiredRandom.contains(random) else {
             print("=== QUIT:", requestsQueue.map { $0.request.path })
             return
@@ -76,16 +76,14 @@ class SecureService {
         // I know it's questionable to remove all requests with the same body
         // Instead of array we can use Set but for PoC I think that's enough
         requestsQueue.removeAll { $0.request.path == requestCompletion.request.path }
-        
-        
+
         var mutableRequestCompletion = requestCompletion
         mutableRequestCompletion.status = .processing
         execute(request: mutableRequestCompletion.request, random: random) { result in
             switch result {
             case .success(let response):
-                mutableRequestCompletion.completion(.success(response))
+                mutableRequestCompletion.result(.success(response))
                 mutableRequestCompletion.status = .processed
-                self.pendingRequests[mutableRequestCompletion.request.path] = nil
             case .failure(let error):
                 if mutableRequestCompletion.retries < maxRetries {
                     mutableRequestCompletion.retries += 1
@@ -93,16 +91,15 @@ class SecureService {
                     self.requestsQueue.append(mutableRequestCompletion)
                     self._executeFromQueue(random)
                 } else {
-                    mutableRequestCompletion.completion(.failure(.error("SECURE ERROR: \(error)")))
+                    mutableRequestCompletion.result(.failure(.error("SECURE ERROR: \(error)")))
                     mutableRequestCompletion.status = .error(.error("SECURE ERROR: \(error)"))
-                    self.pendingRequests[mutableRequestCompletion.request.path] = nil
                 }
             }
         }
     }
     
     // Simulate executing request with random num
-    private func execute<R: SecureRequest>(request: R, random: Int, completion: @escaping SecureResultCompletion) {
+    private func execute<R: SecureRequest>(request: R, random: Int, completion: @escaping SecureRequestResult) {
         let requestBody = [
             "random": String(random),
             "path": request.path

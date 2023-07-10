@@ -7,4 +7,4 @@
 
 import Foundation
 
-typealias SecureResultCompletion = (Result<SecureResponse?, SecureError>) -> Void
+typealias SecureRequestResult = (Result<SecureResponse?, SecureError>) -> Void
