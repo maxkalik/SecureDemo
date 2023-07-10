@@ -7,19 +7,6 @@
 
 import Foundation
 
-enum SecureRequestStatus: Equatable {
-    case unprocessed
-    case processing
-    case processed
-    case error(SecureError)
-}
-
-struct SecureRequestCompletion {
-    var request: any SecureRequest
-    var status: SecureRequestStatus
-    var completion: SecureResultCompletion
-}
-
 class SecureService {
     
     private let dependencies: Dependencies

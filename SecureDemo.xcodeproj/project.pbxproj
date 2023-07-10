@@ -16,9 +16,11 @@
 		11C4B2BC2A5C25E900083C62 /* SecureResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BB2A5C25E900083C62 /* SecureResponse.swift */; };
 		11C4B2BE2A5C25FD00083C62 /* SecureError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BD2A5C25FD00083C62 /* SecureError.swift */; };
 		11C4B2C02A5C263D00083C62 /* SecureResultCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2BF2A5C263D00083C62 /* SecureResultCompletion.swift */; };
-		11C4B2C32A5C287E00083C62 /* SecureCombineRequestCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C22A5C287E00083C62 /* SecureCombineRequestCompletion.swift */; };
+		11C4B2C32A5C287E00083C62 /* SecureRequestCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C22A5C287E00083C62 /* SecureRequestCompletion.swift */; };
 		11C4B2C52A5C2B3E00083C62 /* SessionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C42A5C2B3E00083C62 /* SessionError.swift */; };
 		11C4B2C72A5C2B5700083C62 /* Session+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C62A5C2B5700083C62 /* Session+Helpers.swift */; };
+		11C4B2C92A5C2FDB00083C62 /* SecureRequestStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2C82A5C2FDB00083C62 /* SecureRequestStatus.swift */; };
+		11C4B2CC2A5C306700083C62 /* ExperimantalServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C4B2CB2A5C306700083C62 /* ExperimantalServer.swift */; };
 		11E52BD129753FFB006AE8F4 /* SecureDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BD029753FFB006AE8F4 /* SecureDemoApp.swift */; };
 		11E52BD329753FFB006AE8F4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11E52BD229753FFB006AE8F4 /* ContentView.swift */; };
 		11E52BD529753FFC006AE8F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 11E52BD429753FFC006AE8F4 /* Assets.xcassets */; };
@@ -60,9 +62,11 @@
 		11C4B2BB2A5C25E900083C62 /* SecureResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureResponse.swift; sourceTree = "<group>"; };
 		11C4B2BD2A5C25FD00083C62 /* SecureError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureError.swift; sourceTree = "<group>"; };
 		11C4B2BF2A5C263D00083C62 /* SecureResultCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureResultCompletion.swift; sourceTree = "<group>"; };
-		11C4B2C22A5C287E00083C62 /* SecureCombineRequestCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureCombineRequestCompletion.swift; sourceTree = "<group>"; };
+		11C4B2C22A5C287E00083C62 /* SecureRequestCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureRequestCompletion.swift; sourceTree = "<group>"; };
 		11C4B2C42A5C2B3E00083C62 /* SessionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionError.swift; sourceTree = "<group>"; };
 		11C4B2C62A5C2B5700083C62 /* Session+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+Helpers.swift"; sourceTree = "<group>"; };
+		11C4B2C82A5C2FDB00083C62 /* SecureRequestStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureRequestStatus.swift; sourceTree = "<group>"; };
+		11C4B2CB2A5C306700083C62 /* ExperimantalServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimantalServer.swift; sourceTree = "<group>"; };
 		11E52BCD29753FFB006AE8F4 /* SecureDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		11E52BD029753FFB006AE8F4 /* SecureDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureDemoApp.swift; sourceTree = "<group>"; };
 		11E52BD229753FFB006AE8F4 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -107,10 +111,10 @@
 		11B4603829B556CB00FDB456 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				11C4B2CA2A5C305500083C62 /* Servier */,
 				11C4B2B62A5B5C7200083C62 /* UserService */,
 				11C4B2B12A5B241400083C62 /* Secure */,
 				11B4603D29B5572700FDB456 /* Session */,
-				11E52C00297543A9006AE8F4 /* ServerSimulator.swift */,
 				11E52C02297562F9006AE8F4 /* Dependencies.swift */,
 			);
 			path = Dependencies;
@@ -177,9 +181,19 @@
 				11C4B2B92A5C25C800083C62 /* SecureRequest.swift */,
 				11C4B2BB2A5C25E900083C62 /* SecureResponse.swift */,
 				11C4B2BD2A5C25FD00083C62 /* SecureError.swift */,
-				11C4B2C22A5C287E00083C62 /* SecureCombineRequestCompletion.swift */,
+				11C4B2C22A5C287E00083C62 /* SecureRequestCompletion.swift */,
+				11C4B2C82A5C2FDB00083C62 /* SecureRequestStatus.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		11C4B2CA2A5C305500083C62 /* Servier */ = {
+			isa = PBXGroup;
+			children = (
+				11E52C00297543A9006AE8F4 /* ServerSimulator.swift */,
+				11C4B2CB2A5C306700083C62 /* ExperimantalServer.swift */,
+			);
+			path = Servier;
 			sourceTree = "<group>";
 		};
 		11E52BC429753FFB006AE8F4 = {
@@ -377,8 +391,9 @@
 				11C4B2BA2A5C25C800083C62 /* SecureRequest.swift in Sources */,
 				11E52C01297543A9006AE8F4 /* ServerSimulator.swift in Sources */,
 				11E52BFF29754120006AE8F4 /* Session.swift in Sources */,
-				11C4B2C32A5C287E00083C62 /* SecureCombineRequestCompletion.swift in Sources */,
+				11C4B2C32A5C287E00083C62 /* SecureRequestCompletion.swift in Sources */,
 				11C4B2C52A5C2B3E00083C62 /* SessionError.swift in Sources */,
+				11C4B2CC2A5C306700083C62 /* ExperimantalServer.swift in Sources */,
 				11A8BD742976E494000B8668 /* Requests.swift in Sources */,
 				11C4B2C02A5C263D00083C62 /* SecureResultCompletion.swift in Sources */,
 				11A8BD722976CC96000B8668 /* Extensions.swift in Sources */,
@@ -388,6 +403,7 @@
 				11C4B2BE2A5C25FD00083C62 /* SecureError.swift in Sources */,
 				11C4B2B82A5B5C7D00083C62 /* UserService.swift in Sources */,
 				11E52BD329753FFB006AE8F4 /* ContentView.swift in Sources */,
+				11C4B2C92A5C2FDB00083C62 /* SecureRequestStatus.swift in Sources */,
 				11E52BD129753FFB006AE8F4 /* SecureDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

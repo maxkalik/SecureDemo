@@ -8,6 +8,12 @@
 import Foundation
 import Combine
 
+struct SecureRequestCompletion {
+    var request: any SecureRequest
+    var status: SecureRequestStatus
+    var completion: SecureResultCompletion
+}
+
 struct SecureCombineRequestCompletion {
     var request: any SecureRequest
     var status: SecureRequestStatus
