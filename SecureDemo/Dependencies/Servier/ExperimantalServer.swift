@@ -40,6 +40,7 @@ class ExperimentalServer {
             let (data, response) = try await URLSession.shared.data(for: urlRequest)
             print(data, response)
             let res = try JSONDecoder().decode(Specific.self, from: data)
+            print(res)
         }
     }
 }

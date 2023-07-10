@@ -10,6 +10,7 @@ import Combine
 
 struct SecureRequestCompletion {
     var request: any SecureRequest
+    var retries: Int
     var status: SecureRequestStatus
     var completion: SecureResultCompletion
 }

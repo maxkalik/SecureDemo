@@ -11,7 +11,7 @@ protocol Dependencies:
     HasSession,
     HasUser,
     HasServer,
-    HasSecure2,
+    HasSecure,
     HasSecureCombine
 { }
 
@@ -24,7 +24,7 @@ class AppDependencies: Dependencies {
     lazy var session: Session = .init(dependencies: self)
     lazy var user: UserService = .init(dependencies: self)
     lazy var server: ServerSimulator = .init(dependencies: self)
-    lazy var secure2: SecureService = .init(dependencies: self)
+    lazy var secure: SecureService = .init(dependencies: self)
     lazy var secureCombine: SecureServiceCombine = .init(dependencies: self)
 }
 
@@ -40,8 +40,8 @@ protocol HasServer {
     var server: ServerSimulator { get set }
 }
 
-protocol HasSecure2 {
-    var secure2: SecureService { get set }
+protocol HasSecure {
+    var secure: SecureService { get set }
 }
 
 protocol HasSecureCombine {

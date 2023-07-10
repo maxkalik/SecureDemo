@@ -49,6 +49,7 @@ class UserService {
             .scan((nil, nil)) { ($0.1, $1) }
             .sink { (old, new) in
                 guard let newRandom = new?.random, old?.random != newRandom else { return }
+                self.dependencies.secure.executeFromQueue(newRandom)
                 self.dependencies.secureCombine.executeFromQueue(newRandom)
             }
             .store(in: &disposeBag)

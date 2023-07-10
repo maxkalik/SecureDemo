@@ -7,6 +7,8 @@
 
 import Foundation
 
+fileprivate let maxRetries = 3
+
 class SecureService {
     
     private let dependencies: Dependencies
@@ -29,6 +31,7 @@ class SecureService {
         
         let requestCompletion = SecureRequestCompletion(
             request: request,
+            retries: 0,
             status: .unprocessed,
             completion: completion
         )
@@ -82,11 +85,19 @@ class SecureService {
             case .success(let response):
                 mutableRequestCompletion.completion(.success(response))
                 mutableRequestCompletion.status = .processed
+                self.pendingRequests[mutableRequestCompletion.request.path] = nil
             case .failure(let error):
-                mutableRequestCompletion.completion(.failure(.error("SECURE ERROR: \(error)")))
-                mutableRequestCompletion.status = .error(.error("SECURE ERROR: \(error)"))
+                if mutableRequestCompletion.retries < maxRetries {
+                    mutableRequestCompletion.retries += 1
+                    mutableRequestCompletion.status = .unprocessed
+                    self.requestsQueue.append(mutableRequestCompletion)
+                    self._executeFromQueue(random)
+                } else {
+                    mutableRequestCompletion.completion(.failure(.error("SECURE ERROR: \(error)")))
+                    mutableRequestCompletion.status = .error(.error("SECURE ERROR: \(error)"))
+                    self.pendingRequests[mutableRequestCompletion.request.path] = nil
+                }
             }
-            self.pendingRequests[mutableRequestCompletion.request.path] = nil
         }
     }
     

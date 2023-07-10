@@ -34,8 +34,8 @@ class ContentViewModel: ObservableObject {
     func buttonOnePressed() {
         isLoadingButton1 = true
 
-//        buttonOnePressedSecure()
-        buttonOnePressedSecureCombine()
+        buttonOnePressedSecure()
+//        buttonOnePressedSecureCombine()
     }
     
     func buttonOnePressedSecure() {
@@ -67,8 +67,8 @@ class ContentViewModel: ObservableObject {
     func buttonTwoPressed() {
         isLoadingButton2 = true
         
-//        buttonTwoPressedSecure()
-        buttonTwoPressedSecureCombine()
+        buttonTwoPressedSecure()
+//        buttonTwoPressedSecureCombine()
     }
     
     func buttonTwoPressedSecure() {
@@ -104,8 +104,8 @@ class ContentViewModel: ObservableObject {
     func buttonThreePressed() {
         isLoadingButton3 = true
         
-//        buttonThreePressedSecure()
-        buttonThreePressedSecureCombine()
+        buttonThreePressedSecure()
+//        buttonThreePressedSecureCombine()
     }
     
     func buttonThreePressedSecure() {

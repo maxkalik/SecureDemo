@@ -22,7 +22,7 @@ extension Session {
         var request = request
         request.random = random
         
-        dependencies.secure2.call(request: request) { result in
+        dependencies.secure.call(request: request) { result in
             switch result {
             case .success(let response):
                 completion(response as? R.Output)
