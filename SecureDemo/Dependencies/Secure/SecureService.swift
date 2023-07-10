@@ -1,115 +1,128 @@
 //
-//  SecureService.swift
+//  SecureService2.swift
 //  SecureDemo
 //
-//  Created by Maksim Kalik on 1/16/23.
+//  Created by Maksim Kalik on 7/9/23.
 //
 
 import Foundation
 
-protocol SecureRequest: Codable {
-    associatedtype Output: SecureResponse
-    var path: String { get }
-    var random: Int? { get set }
+enum SecureRequestStatus: Equatable {
+    case unprocessed
+    case processing
+    case processed
+    case error(SecureError)
 }
 
-protocol SecureResponse: Codable {
-    var data: String { get }
+struct SecureRequestCompletion {
+    var request: any SecureRequest
+    var status: SecureRequestStatus
+    var completion: SecureResultCompletion
 }
-
-enum SecureError: Error, Equatable {
-    case userRandom
-    case requestNotFound
-    case error(String)
-}
-
-typealias SecureResultCompletion = (Result<SecureResponse?, SecureError>) -> Void
-typealias SecureRequestCompletion = (request: any SecureRequest, completion: SecureResultCompletion?)
 
 class SecureService {
     
     private let dependencies: Dependencies
     private var expiredRandom: [Int] = []
-    private var queue: [SecureRequestCompletion] = []
+    private var requestsQueue: [SecureRequestCompletion] = []
+    private let accessQueue = DispatchQueue(label: "secureService.accessQueue")
+    private var pendingRequests: [String: SecureRequestCompletion] = [:]
     
     init(dependencies: Dependencies) {
         self.dependencies = dependencies
     }
-
+    
     // This method just append `SecureRequestCompletion` to the queue
     // And emmidiately runs queue becase random num can be already in a user object
-    func call<R: SecureRequest>(request: R, completion: @escaping (Result<SecureResponse?, SecureError>) -> Void) {
+    public func call<R: SecureRequest>(request: R, completion: @escaping SecureResultCompletion) {
         guard let random = request.random else {
             completion(.failure(.userRandom))
             return
         }
-        queue.append((request, completion))
-        executeFromQueue(random)
-    }
-    
-    @discardableResult
-    func call<R: SecureRequest>(request: R) async throws -> R.Output? {
-        try await withCheckedThrowingContinuation { continuation in
-            call(request: request) { result in
-                continuation.resume(with: result)
-            }
-        } as? R.Output
+        
+        let requestCompletion = SecureRequestCompletion(
+            request: request,
+            status: .unprocessed,
+            completion: completion
+        )
+        
+        accessQueue.async {
+            self.requestsQueue.append(requestCompletion)
+            self.pendingRequests[request.path] = requestCompletion
+            self.executeFromQueue(random)
+        }
     }
     
     // Call this method if random num has changed (for example from session user didSet)
-    func executeFromQueue(_ random: Int) {
-        Task {
-            // Check if we have something to execute in the queue
-            guard let requestCompletion = queue.first else {
-                expiredRandom.removeAll()
-                return
+    public func executeFromQueue(_ random: Int) {
+        accessQueue.async {
+            self._executeFromQueue(random)
+        }
+    }
+    
+    private func _executeFromQueue(_ random: Int) {
+        guard let requestCompletion = self.requestsQueue.first(where: { $0.status == .unprocessed }) else {
+            self.expiredRandom.removeAll()
+            return
+        }
+        
+        // Possible cases to handle
+        // CASE 1 - USER RANDOM: nil | CURRENT RANDOM: nil
+        // CASE 2 - USER RANDOM: 123 | CURRENT RANDOM: nil
+        // CASE 3 - USER RANDOM: 123 | CURRENT RANDOM: 123
+        // CASE 4 - USER RANDOM: 321 | CURRENT RANDOM: 123
+        // CASE 4 - USER RANDOM: nil | CURRENT RANDOM: 321 -> ?
+        
+        // Check if current random is not the same
+        guard !self.expiredRandom.contains(random) else {
+            print("=== QUIT:", requestsQueue.map { $0.request.path })
+            return
+        }
+        
+        // Update current random with that what was updated in user object
+        self.expiredRandom.append(random)
+        
+        // Remove all request with the same body or path from queue
+        // I know it's questionable to remove all requests with the same body
+        // Instead of array we can use Set but for PoC I think that's enough
+        requestsQueue.removeAll { $0.request.path == requestCompletion.request.path }
+        
+        
+        var mutableRequestCompletion = requestCompletion
+        mutableRequestCompletion.status = .processing
+        execute(request: mutableRequestCompletion.request, random: random) { result in
+            switch result {
+            case .success(let response):
+                mutableRequestCompletion.completion(.success(response))
+                mutableRequestCompletion.status = .processed
+            case .failure(let error):
+                mutableRequestCompletion.completion(.failure(.error("SECURE ERROR: \(error)")))
+                mutableRequestCompletion.status = .error(.error("SECURE ERROR: \(error)"))
             }
-            
-            // Possible cases to handle
-            // CASE 1 - USER RANDOM: nil | CURRENT RANDOM: nil
-            // CASE 2 - USER RANDOM: 123 | CURRENT RANDOM: nil
-            // CASE 3 - USER RANDOM: 123 | CURRENT RANDOM: 123
-            // CASE 4 - USER RANDOM: 321 | CURRENT RANDOM: 123
-            // CASE 4 - USER RANDOM: nil | CURRENT RANDOM: 321 -> ?
-            
-            // Check if current random is not the same
-            guard !expiredRandom.contains(random) else {
-                print("=== QUIT:", queue.map { $0.request.path })
-                return
-            }
-
-            // Update current random with that what was updated in user object
-            expiredRandom.append(random)
-            
-
-            // Remove all request with the same body or path from queue
-            // I know it's questionable to remove all requests with the same body
-            // Instead of array we can use Set but for PoC I think that's enough
-            queue.removeAll { $0.request.path == requestCompletion.request.path }
-            
-            do {
-                let response = try await execute(
-                    request: requestCompletion.request,
-                    random: random
-                )
-                requestCompletion.completion?(.success(response))
-            } catch {
-                requestCompletion.completion?(.failure(.error("SECURE ERROR: Server error")))
-            }
+            self.pendingRequests[mutableRequestCompletion.request.path] = nil
         }
     }
     
     // Simulate executing request with random num
-    private func execute<R: SecureRequest>(request: R, random: Int) async throws -> R.Output? {
+    private func execute<R: SecureRequest>(request: R, random: Int, completion: @escaping SecureResultCompletion) {
         let requestBody = [
             "random": String(random),
             "path": request.path
         ]
         
-        guard let data = try await dependencies.server.postRequest(body: requestBody) else {
-            return nil
+        dependencies.server.postRequest(body: requestBody) { data, error in
+            if let data {
+                do {
+                    let response = try JSONDecoder().decode(R.Output.self, from: data)
+                    completion(.success(response))
+                } catch {
+                    completion(.failure(.error("JSON DECODING ERROR: \(error)")))
+                }
+            } else if let error {
+                completion(.failure(.error("SERVER ERROR: \(error)")))
+            } else {
+                completion(.failure(.error("SERVER UNKNOWN ERROR")))
+            }
         }
-        
-        return try JSONDecoder().decode(R.Output.self, from: data)
     }
 }

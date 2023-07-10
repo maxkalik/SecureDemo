@@ -20,6 +20,7 @@ class UserService {
         self.dependencies = dependencies
     }
     
+    // We should start observing user before any secure requests
     func start() {
         subscribeUserSubject()
         prepareUser()

@@ -27,11 +27,11 @@ class ContentViewModel: ObservableObject {
     @Published var isLoadingButton3: Bool = false
 
     init() {
-        guard let url = URL(string: "http://localhost:3000/secure/1x1") else {
-            return
-        }
+//        guard let url = URL(string: "http://localhost:3000/secure/1x1") else {
+//            return
+//        }
 
-        Task {
+//        Task {
 //            let parameters = ["name": "maxpro", "password": "123456"]
 //            var urlRequest = URLRequest(url: url)
 //            urlRequest.allHTTPHeaderFields = [
@@ -46,12 +46,21 @@ class ContentViewModel: ObservableObject {
 //            print(data, response)
 ////            let res = try JSONDecoder().decode(Specific.self, from: data)
 //
-            await dependencies.session.prepareSession()
-            await MainActor.run {
-                isLoading = false
+
+//            await MainActor.run {
+//                isLoading = false
+//            }
+//        }
+        
+        
+        dependencies.user.userSubject
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] user in
+                guard let self else { return }
+                self.isLoading = false
             }
-            await dependencies.session.observeUser()
-        }
+            .store(in: &disposeBag)
     }
     
     // MARK: - Button 1
@@ -59,28 +68,11 @@ class ContentViewModel: ObservableObject {
     func buttonOnePressed() {
         isLoadingButton1 = true
 
-//        button1PressedSecure2()
-        button1PressedSecureCombine()
+//        buttonOnePressedSecure()
+        buttonOnePressedSecureCombine()
     }
     
-    func button1PressedSecure() {
-        Task {
-            do {
-                print("--------------------- button 1 pressed ---------------------")
-                try await dependencies.session.postRequestOne()
-                await MainActor.run {
-                    isLoadingButton1 = false
-                }
-            } catch {
-                print("--------------------- button 1 error")
-                await MainActor.run {
-                    isLoadingButton1 = false
-                }
-            }
-        }
-    }
-    
-    func button1PressedSecure2() {
+    func buttonOnePressedSecure() {
         dependencies.session.postRequestOne {
             DispatchQueue.main.async {
                 self.isLoadingButton1 = false
@@ -88,7 +80,7 @@ class ContentViewModel: ObservableObject {
         }
     }
     
-    func button1PressedSecureCombine() {
+    func buttonOnePressedSecureCombine() {
         dependencies.session.postRequestOne()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -108,24 +100,12 @@ class ContentViewModel: ObservableObject {
     
     func buttonTwoPressed() {
         isLoadingButton2 = true
-//        button2PressedSecure2()
-        button2PressedSecureCombine()
+        
+//        buttonTwoPressedSecure()
+        buttonTwoPressedSecureCombine()
     }
     
-    func button2PressedSecure() {
-        Task {
-            print("--------------------- button 2 pressed ---------------------")
-            if let response = try await dependencies.session.postRequestTwo() {
-                print("=== ===> button 2 pressed and got response: \(response)")
-            }
-            
-            await MainActor.run {
-                isLoadingButton2 = false
-            }
-        }
-    }
-    
-    func button2PressedSecure2() {
+    func buttonTwoPressedSecure() {
         dependencies.session.postRequestTwo { response in
             if let response {
                 print("=== ===> button 2 pressed and got response: \(response)")
@@ -136,7 +116,7 @@ class ContentViewModel: ObservableObject {
         }
     }
     
-    func button2PressedSecureCombine() {
+    func buttonTwoPressedSecureCombine() {
         dependencies.session.postRequestTwo()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -157,22 +137,12 @@ class ContentViewModel: ObservableObject {
     
     func buttonThreePressed() {
         isLoadingButton3 = true
-//        button3PressedSecure2()
-        button3PressedSecureCombine()
+        
+//        buttonThreePressedSecure()
+        buttonThreePressedSecureCombine()
     }
     
-    func button3PressedSecure() {
-        Task {
-            print("--------------------- button 3 pressed ---------------------")
-            try await dependencies.session.postRequestThree()
-            
-            await MainActor.run {
-                isLoadingButton3 = false
-            }
-        }
-    }
-    
-    func button3PressedSecure2() {
+    func buttonThreePressedSecure() {
         dependencies.session.postRequestThree {
             DispatchQueue.main.async {
                 self.isLoadingButton3 = false
@@ -180,7 +150,7 @@ class ContentViewModel: ObservableObject {
         }
     }
     
-    func button3PressedSecureCombine() {
+    func buttonThreePressedSecureCombine() {
         dependencies.session.postRequestThree()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -194,29 +164,5 @@ class ContentViewModel: ObservableObject {
                 self.isLoadingButton3 = false
             })
             .store(in: &disposeBag)
-    }
-}
-
-
-extension Encodable {
-    var dictionary: [String: Any]? {
-        guard let data = try? JSONEncoder().encode(self) else { return nil }
-        return (
-            try? JSONSerialization.jsonObject(
-                with: data,
-                options: .allowFragments
-            )
-        ).flatMap { $0 as? [String: Any] }
-    }
-}
-
-extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
-    func stringify() -> String? {
-        if let jsonData = try? JSONSerialization.data(withJSONObject: self),
-           let jsonText = String(data: jsonData, encoding: .utf8) {
-            return jsonText
-        } else {
-            return nil
-        }
     }
 }

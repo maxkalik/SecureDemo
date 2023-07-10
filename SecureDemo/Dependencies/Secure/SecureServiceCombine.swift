@@ -8,19 +8,13 @@
 import Foundation
 import Combine
 
-struct SecureCombineRequestCompletion {
-    var request: any SecureRequest
-    var status: SecureRequestStatus
-    var completion: PassthroughSubject<SecureResponse?, SecureError>
-}
-
 class SecureServiceCombine {
     
     private let dependencies: Dependencies
     private var expiredRandom: [Int] = []
-    private var queue: [SecureCombineRequestCompletion] = []
-    private var pendingRequests: [String: SecureCombineRequestCompletion] = [:]
     private let accessQueue = DispatchQueue(label: "SecureService.queueAccessQueue")
+    private var requestsQueue: [SecureCombineRequestCompletion] = []
+    private var pendingRequests: [String: SecureCombineRequestCompletion] = [:]
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -41,7 +35,7 @@ class SecureServiceCombine {
         )
         
         accessQueue.async {
-            self.queue.append(requestCompletion)
+            self.requestsQueue.append(requestCompletion)
             self.pendingRequests[request.path] = requestCompletion
             self.executeFromQueue(random)
         }
@@ -64,7 +58,7 @@ class SecureServiceCombine {
     }
     
     private func _executeFromQueue(_ random: Int) {
-        guard let requestCompletion = self.queue.first(where: { $0.status == .unprocessed }) else {
+        guard let requestCompletion = self.requestsQueue.first(where: { $0.status == .unprocessed }) else {
             self.expiredRandom.removeAll()
             return
         }
@@ -72,7 +66,7 @@ class SecureServiceCombine {
         guard !self.expiredRandom.contains(random) else { return }
         
         self.expiredRandom.append(random)
-        queue.removeAll { $0.request.path == requestCompletion.request.path }
+        requestsQueue.removeAll { $0.request.path == requestCompletion.request.path }
         
         var mutableRequestCompletion = requestCompletion
         mutableRequestCompletion.status = .processing
