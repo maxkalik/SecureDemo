@@ -68,10 +68,7 @@ class SecureService {
         // Check if current random is not the same
         // If it's still the same random number then we need just quit silently
         // and wait for another call of `executeFromQueue`
-        guard !expiredRandom.contains(random) else {
-            print("=== QUIT:", requestsQueue.map { $0.request.path })
-            return
-        }
+        guard !expiredRandom.contains(random) else { return }
         
         // Update current random with that what was updated in user object
         self.expiredRandom.append(random)

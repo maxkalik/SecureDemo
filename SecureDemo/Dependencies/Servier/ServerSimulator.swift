@@ -50,23 +50,33 @@ class ServerSimulator {
         }
     }
     
-    func postRequest(body: [String: String], completion: (Data?, ServerError?) -> Void) {
-
+    func middleware(body: [String: String], completion: (String, ServerError?) -> Void) {
         guard let randomStr = body["random"],
               let random = Int(randomStr),
               !expiredRandoms.contains(random) else {
-            completion(nil, .expiredRandom)
+            completion("", .expiredRandom)
             return
         }
         
         updateRandom()
         
         guard let path = body["path"] else {
-            completion(nil, .badRequest)
+            completion("", .badRequest)
             return
         }
         
-        completion(["data": "Some server data for request \(path)"].toJSON(), nil)
+        completion(path, nil)
+    }
+    
+    func postRequest(body: [String: String], completion: (Data?, ServerError?) -> Void) {
+
+        middleware(body: body) { path, error in
+            if let error {
+                completion(nil, error)
+            } else {
+                completion(["data": "Some server data for request \(path)"].toJSON(), nil)
+            }
+        }
     }
     
     func postRequest(body: [String: String]) -> Future<Data?, ServerError> {

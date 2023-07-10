@@ -55,17 +55,14 @@ class SecureServiceCombine {
     }
     
     private func _executeFromQueue(_ random: Int) {
-        guard let requestCompletion = self.requestsQueue.first(where: { $0.status == .unprocessed }) else {
-            self.expiredRandom.removeAll()
+        guard let requestCompletion = requestsQueue.first(where: { $0.status == .unprocessed }) else {
+            expiredRandom.removeAll()
             return
         }
         
-        guard !self.expiredRandom.contains(random) else {
-            print("=== QUIT:", requestsQueue.map { $0.request.path })
-            return
-        }
+        guard !expiredRandom.contains(random) else { return }
         
-        self.expiredRandom.append(random)
+        expiredRandom.append(random)
         requestsQueue.removeAll { $0.request.path == requestCompletion.request.path }
         
         var mutableRequestCompletion = requestCompletion
